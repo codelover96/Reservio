@@ -2,8 +2,8 @@
 
 ### Reservio: A simple Java Console Application for artistic event management
 
-Managing theatrical and musical events via a Console UI and offering CRUD functionality to the user. For example,
-managing customers, creating reservations and adding new events. 
+Managing theatrical and musical events via a Console UI and offering CRUD functionality. For example,
+managing customers, creating reservations and adding new events using the command line.
 
 ### Features
 - Add, edit, delete Theatrical and Musical
@@ -33,7 +33,7 @@ When running, console shows this menu:
 CSV files are under the ```resources``` directory.
 
 ### Notes
-1. User is the administrator or the event's manager.
+1. User is the administrator or the event manager.
 2. Supports only theatrical or musical events. Though other events can be modeled easily.
 
 ### Contributing

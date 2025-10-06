@@ -5,15 +5,8 @@ TODO:
 2.2.Πρέπει να φτιάξεις collection και να μην είναι μέσα στην main η λογική σου.
 3.πως μία μέθοδος αναζήτησης με id μπορεί να εφαρμοστεί σε οποιαδήποτε ArrayList από objects.
 4.το id πρέπει να το δίνεις εσύ.
-5.Αντί για nextInt να το αντικαταστήσεις με nextLine και να κάνεις parseInt!
-6.Αφαίρεσε όλα τα στοιχεία που προδίδουν το project.
-    6.1. Άλλαξε ονόματα στις κλάσεις, στις μεθόδους και στις μεταβλητές
-    6.2. Αντικατέστησε το javadoc από τα ελληνικά στα αγγλικά.
-    6.3. Βάλε άλλα τυχαία δεδομένα στα αρχεία csv
-8.Dont use printWriter instead use BufferedReader
-9.Όλες οι μέθοδοι που διαβάζουν/γράφουν στα csv να γίνουν όπως η loadCustomersCsv()
 
-NOTES
+NOTES:
 -Βασική ερώτηση -> Πως μπορείς να κάνεις το project καλύτερο
 -Δεν πρέπει να ξεφύγεις από το console application
 -Ρώτα το chatgpt πως μπορείς να κάνεις καλύτερη την λογική της εφαρμογής π.χ.
@@ -29,13 +22,17 @@ import java.util.*;
 import model.*;
 import ui.Menu;
 
+/**
+ * Class Main
+ * @author codelover96
+ */
+
 public class Main {
-    // Αρχικοποίηση μεταβλητών
     private Scanner in = new Scanner(System.in);
-    private ArrayList<Customer> customers = new ArrayList<Customer>();
-    private ArrayList<TheatricalEvent> theatrical_events = new ArrayList<TheatricalEvent>();
-    private ArrayList<MusicalEvent> musical_events = new ArrayList<MusicalEvent>();
-    private ArrayList<Reservation> reservations = new ArrayList<Reservation>();
+    private List<Customer> customers = new ArrayList<>();
+    private List<TheatricalEvent> theatrical_events = new ArrayList<>();
+    private List<MusicalEvent> musical_events = new ArrayList<>();
+    private List<Reservation> reservations = new ArrayList<>();
 
     // CSV FILES
     private final String customers_csv = "customers.csv";
@@ -49,21 +46,19 @@ public class Main {
     private final File reservations_csv_file = new File(Paths.get("resources", "csv", reservations_csv).toUri());
 
     /**
-     * Η κύρια μέθοδος για την έναρξη της εφαρμογής
-     *
+     * app starting point
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         Main m = new Main();
         m.loadAllFromCsv();
-        System.out.println("Διαχείριση Θεατρικών και Μουσικών Παραστάσεων");
+        System.out.println("Welcome to Reservio, your event manager!");
         System.out.println();
         m.mainMenu();
     }
 
     /**
-     * Αρχικοποίηση όλων των δεδομένων από τα αρχεία CSV.
-     * Δηλαδή των πελατών, των παραστάσεων και των κρατήσεων.
+     * Load all data from CSV files
      */
     private void loadAllFromCsv() {
         loadCustomersCsv();
@@ -73,9 +68,7 @@ public class Main {
     }
 
     /**
-     * Αποθήκευση των Arraylist που δημιουργήσαμε σε CSV αρχεία,
-     * για τους Πελάτες, τις Μουσικές, τις Θεατρικές παραστάσεις αλλά και για τους
-     * Πελάτες.
+     * Store all data from ArrayLists to CSV files
      */
     private void saveToCsv() {
         saveCustomersToCsv();
@@ -85,84 +78,63 @@ public class Main {
     }
 
     /**
-     * Αποθήκευση των πελατών στο αρχείο CSV 'customers.csv'
+     * Save customers ArrayList to CSV file 'customers.csv'
      */
     private void saveCustomersToCsv() {
-        try {
-            // Ο PrintWriter χρησιμοποιείται για την εκτύπωση ενός αντικειμένου σε κάποιο
-            // αρχείο.
-            // Εδώ εκτυπώνουμε ένα-ένα τα περιεχόμενα του ArrayList customers στο αρχείο
-            // customers.csv
-            PrintWriter pr = new PrintWriter(customers_csv_file);
-            {
-                for (Customer c : customers) {
-                    pr.println(c.toCSV());
-                }
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(customers_csv_file))){
+            for (Customer c : customers) {
+                bw.write(c.toCSV());
             }
-            pr.close();// κλείνει το αρχείο
-            // Εάν δε βρεθεί το αρχείο customers.csv, πέτα το παρακάτω exception.
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             System.out.println("Cannot open output file " + customers_csv_file);
         }
     }
 
     /**
-     * Αποθήκευση των μουσικών παραστάσεων στο αρχείο CSV 'musical.csv'
+     * Save musical_events ArrayList to CSV file 'musical.csv'
      */
     private void saveMusicalToCsv() {
-        try {
-            PrintWriter pr = new PrintWriter(musical_csv_file);
-            {
-                for (MusicalEvent m : musical_events) {
-                    pr.println(m.toCSV());
-                }
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(musical_csv_file))){
+            for (MusicalEvent m : musical_events) {
+                bw.write(m.toCSV());
             }
-            pr.close();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             System.out.println("Cannot open output file " + musical_csv_file);
         }
     }
 
     /**
-     * Αποθήκευση των θεατρικών παραστάσεων στο αρχείο CSV 'theatrical.csv'
+     * Save theatrical_events ArrayList to CSV 'theatrical.csv'
      */
     private void saveTheatricalToCsv() {
-        try {
-            PrintWriter pr = new PrintWriter(theatrical_csv_file);
-            {
-                for (TheatricalEvent t : theatrical_events) {
-                    pr.println(t.toCSV());
-                }
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(theatrical_csv_file))){
+            for (TheatricalEvent t : theatrical_events) {
+                bw.write(t.toCSV());
             }
-            pr.close();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             System.out.println("Cannot open output file " + theatrical_csv_file);
         }
     }
 
     /**
-     * Αποθήκευση των κρατήσεων στο αρχείο CSV 'reservations.csv'
+     * Save reservations ArrayList to CSV file 'reservations.csv'
      */
     private void saveReservationsToCsv() {
-        try {
-            PrintWriter pr = new PrintWriter(reservations_csv_file);
-            {
-                for (Reservation r : reservations) {
-                    pr.println(r.toCSV());
-                }
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(reservations_csv_file))){
+            for (Reservation r : reservations) {
+                bw.write(r.toCSV());
             }
-            pr.close();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             System.out.println("Cannot open output file " + reservations_csv_file);
         }
     }
 
     /**
-     * Load customers from CSV file
+     * Read customers.csv file and store customers to ArrayList
      */
     private void loadCustomersCsv() {
-        String name = null;
-        int customer_id = 0;
+        String name;
+        int customer_id;
         String line;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
                 Objects.requireNonNull(Main.class.getResourceAsStream(csvResourcesPath+customers_csv)), StandardCharsets.UTF_8))){
@@ -180,7 +152,7 @@ public class Main {
     }
 
     /**
-     * Load theatrical events from CSV file
+     * Read theatrical.csv file and store theatrical events to ArrayList
      */
     private void loadTheatricalCsv() {
         int id;
@@ -209,7 +181,7 @@ public class Main {
     }
 
     /**
-     * Load Musical events from CSV file
+     * Read musical.csv file and store musical events to ArrayList
      */
     private void loadMusicalCsv() {
         int id;
@@ -238,16 +210,9 @@ public class Main {
     }
 
     /**
-     * Load Reservations from CSV file
+     * Read reservations.csv file and store reservations to ArrayList
      */
     private void loadReservationsCsv() {
-        /*
-         * το πρώτο νούμερο είναι το ID του πελάτη που έχει κάνει κράτηση
-         * το δεύτερο νούμερο είναι το ID του Event που έχει γίνει κράτηση
-         * ΟΠΟΤΕ:
-         * Ο πελάτης με ID 1 έχει κάνει κράτηση στην παράσταση με ID 2
-         * Ο πελάτης με ID 1 έχει κάνει κράτηση στην παράσταση με ID 3
-         */
         int customer_id;
         int event_id;
         String line;
@@ -266,21 +231,19 @@ public class Main {
     }
 
     /**
-     * Εκτύπωση του αρχικού μενού και επιλογή λειτουργίας από τον χρήστη.
+     * Display main menu and choose operation
      */
     private void mainMenu() {
-        int choice = 0;
+        int choice;
         do {
             Menu.printMainMenu();
-            System.out.println("Επιλογή: ");
-            // έλεγχος εάν o χρήστης έχει πληκτρολογήσει κάτι άλλο εκτός από ακέραιο πχ χαρακτήρα
+            System.out.println("Choose: ");
             try {
-                choice = Integer.parseInt(in.nextLine().trim()); // choice μπορεί να είναι από το 1 έως το 6
+                choice = Integer.parseInt(in.nextLine().trim());
             } catch (InputMismatchException e) {
                 System.out.println("Wrong input type: "+e);
                 break;
             }
-
             switch (choice) {
                 case 1:
                     // Εισαγωγή, Διόρθωση, Διαγραφή Θεατρικών Παραστάσεων
@@ -303,49 +266,49 @@ public class Main {
                     break;
                 case 6:
                     //
-                    System.out.println("Αποθήκευση και έξοδος...");
+                    System.out.println("Save and Exit...");
                     saveToCsv();
                     in.close();
             }
-        } while (choice != 6); // όσο ο χρήστης επιλέγει οτιδήποτε άλλο εκτός από 6
+        } while (choice != 6);
     }
 
     /**
-     * Display theatrical event menu and call the corresponding method
+     * Display theatrical events menu and choose function.
      */
     private void manageTheatricalEvents() {
         int choice;
         int id;
         do {
-            System.out.println("=== Διαχείριση Θεατρικών Παραστάσεων ===");
+            System.out.println("=== Theatrical Event Management ===");
             Menu.printManagerMenu();
             System.out.println("Επιλογή: ");
 
             try {
                 choice = Integer.parseInt(in.nextLine().trim());
             } catch (InputMismatchException e) {
-                System.out.println("Wrong input format...");
+                System.out.println("Wrong input type...");
                 break;
             }
 
             switch (choice) {
                 case 1:
                     // εισαγωγή στοιχείων θεατρικής παράστασης ένα προς ένα.
-                    System.out.println("Εισαγωγή νέας θεατρικής παράστασης...");
+                    System.out.println("Enter new theatrical event...");
                     insertNewTheatrical();
                     saveTheatricalToCsv();
                     break;
                 case 2:
                     // επεξεργασία στοιχείων θεατρικής παράστασης
-                    System.out.println("Επεξεργασία στοιχείων θεατρικής παράστασης...");
-                    System.out.println("Δώσε το ID της θεατρικής παράστασης:");
+                    System.out.println("Edit theatrical event...");
+                    System.out.println("Give ID:");
                     id = Integer.parseInt(in.nextLine().trim());
                     editTheatricalByID(id);
                     saveTheatricalToCsv();
                     break;
                 case 3:
                     // επιλογή θεατρικής παράστασης προς διαγραφή και διαγραφή της
-                    System.out.println("Δώσε το ID της θεατρικής παράστασης:");
+                    System.out.println("Give ID:");
                     id = Integer.parseInt(in.nextLine().trim());
                     deleteTheatricalByID(id);
                     saveTheatricalToCsv();
@@ -359,57 +322,48 @@ public class Main {
     }
 
     /**
-     * Display musical event menu and call the appropriate method
+     * Display musical event menu and choose function
      */
     private void manageMusicalEvents() {
         int choice;
         int id;
-        MusicalEvent m;
         do {
-            System.out.println("Μουσικές Παραστάσεις");
+            System.out.println("=== Musical Event Management ===");
             Menu.printManagerMenu();
-            System.out.println("Επιλογή: ");
+            System.out.println("Choose: ");
             try {
                 choice = Integer.parseInt(in.nextLine().trim());
             } catch (InputMismatchException e) {
-                System.out.println("Wrong input format...");
+                System.out.println("Wrong input type...");
                 break;
             }
             switch (choice) {
                 case 1:
-                    // εισαγωγή στοιχείων μουσικής παράστασης ένα προς ένα.
                     insertNewMusical();
                     saveMusicalToCsv();
                     break;
                 case 2:
-                    // επεξεργασία στοιχείων μουσικής παράστασης
-                    System.out.println("Επεξεργασία στοιχείων μουσικής παράστασης...");
-                    System.out.println("Δώσε το ID της μουσικής παράστασης:");
+                    System.out.println("Edit musical event...");
+                    System.out.println("Give ID:");
                     id = Integer.parseInt(in.nextLine().trim());
                     editMusicalByID(id);
                     saveMusicalToCsv();
                     break;
                 case 3:
-                    // επιλογή μουσικής παράστασης προς διαγραφή και διαγραφή της
-                    System.out.println("Δώσε το ID της μουσικής παράστασης:");
+                    System.out.println("Give ID:");
                     id = Integer.parseInt(in.nextLine().trim());
                     deleteMusicalByID(id);
                     saveMusicalToCsv();
                     break;
                 case 4:
-                    // προβολή όλων το μουσικών παραστάσεων
-                    int i;
-                    for (i = 0; i < musical_events.size(); i++) {
-                        m = musical_events.get(i);
-                        System.out.println(m.toString());
-                    }
+                    printAllMusical();
                     break;
             }
         } while (choice != 5);
     }
 
     /**
-     * Add new Musical event to ArrayList musical_events
+     * Add new Musical event to 'musical_events' ArrayList
      */
     public void insertNewMusical() {
         int id = 0;
@@ -418,41 +372,41 @@ public class Main {
         String location;
         String date;
         String singer;
-        System.out.println("Εισάγετε το ID:");
+        System.out.println("Enter Musical event ID:");
         try {
             id = Integer.parseInt(in.nextLine().trim());
         } catch (InputMismatchException e) {
-            System.out.println("Wrong input format...");
+            System.out.println("Wrong input type...");
             System.exit(1);
         }
 
-        System.out.println("Εισάγετε τον τίτλο της μουσικής παράστασης...");
+        System.out.println("Enter musical event title...");
         title = in.nextLine().trim();
         // check if already exists in musical_events
         if (getMusicalByID(id) != null) {
-            System.out.println("Αυτή η μουσική παράσταση υπάρχει ήδη.");
+            System.out.println("Musical event with ID "+id+" already exists.");
             return;
         }
-        System.out.println("Εισάγετε τo όνομα του θεάτρου");
+        System.out.println("Enter theater name:");
         theater_name = in.nextLine().trim();
 
-        System.out.println("Εισάγετε την τοποθεσία της παράστασης");
+        System.out.println("Enter location:");
         location = in.nextLine().trim();
 
-        System.out.println("Εισάγετε την ημερομηνία της παράστασης");
-        System.out.println("(σε μορφή ΥΥYY-ΜΜ-DD)");
+        System.out.println("Enter date:");
+        System.out.println("(in ΥΥYY-ΜΜ-DD format)");
         date = in.nextLine().trim();
 
-        System.out.println("Εισάγετε το όνομα του πρωταγωνιστή");
+        System.out.println("Enter singer's name:");
         singer = in.nextLine().trim();
         MusicalEvent m = new MusicalEvent(id, title, theater_name, location, date, singer);
         musical_events.add(m);
-        System.out.println("Εισάγατε νέα μουσική παράσταση:");
-        System.out.println(m.toString());
+        System.out.println("New musical event added: ");
+        System.out.println(m);
     }
 
     /**
-     * Add new Theatrical event to Arraylist theatrical_events
+     * Add new Theatrical event to 'theatrical_events' ArrayList
      */
     public void insertNewTheatrical() {
         int id = 0;
@@ -461,7 +415,7 @@ public class Main {
         String location;
         String date;
         String actor;
-        System.out.println("Εισάγετε το ID της νέας θεατρικής παράστασης:");
+        System.out.println("Enter Theatrical event ID:");
         try {
             id = Integer.parseInt(in.nextLine().trim());
         } catch (InputMismatchException e) {
@@ -471,184 +425,176 @@ public class Main {
 
         // check if already exists in theatrical_events
         if (getTheatricalByID(id) != null) {
-            System.out.println("Αυτή η θεατρική παράσταση υπάρχει ήδη.");
+            System.out.println("Theatrical event with ID "+id+" already exists.");
             return;
         }
 
-        System.out.println("Εισάγετε τον τίτλο της θεατρικής παράστασης...");
+        System.out.println("Enter theater event title");
         title = in.nextLine().trim();
 
-        System.out.println("Εισάγετε το όνομα του θεάτρου");
+        System.out.println("Enter theater name");
         theater_name = in.nextLine().trim();
 
-        System.out.println("Εισάγετε την τοποθεσία της παράστασης");
+        System.out.println("Enter event location");
         location = in.nextLine().trim();
 
 
-        System.out.println("Εισάγετε την ημερομηνία της παράστασης");
-        System.out.println("(σε μορφή ΥΥYY-ΜΜ-DD)");
+        System.out.println("Enter new date:");
+        System.out.println("(in ΥΥYY-ΜΜ-DD format)");
         date = in.nextLine().trim();
-        System.out.println("Εισάγετε το όνομα του πρωταγωνιστή");
+        System.out.println("Enter actor name:");
         actor = in.nextLine().trim();
         TheatricalEvent t = new TheatricalEvent(id, title,theater_name, location, date, actor);
         theatrical_events.add(t);
-        System.out.println("Εισάγατε νέα θεατρική παράσταση:");
-        System.out.println(t.toString());
+        System.out.println("Added new theatrical event:");
+        System.out.println(t);
     }
 
     /**
      * Edit a theatrical event with given ID
-     *
      * @param id of theatrical event to make edits
      */
     public void editTheatricalByID(int id) {
         TheatricalEvent t = getTheatricalByID(id);
         if ( t == null ){
-            System.out.println("Δεν υπάρχει Θεατρική Παράσταση με ID: "+id);
+            System.out.println("No theatrical event with ID: "+id);
             return;
         }
-        // System.out.println("Επεξεργασία:");
-        // System.out.println(t.toString());
 
-        System.out.println("Νέος τίτλος:");
+        System.out.println("New title:");
         String title = in.nextLine().trim();
         if (!title.isBlank())
             t.setTitle(title.trim());
 
-        System.out.println("Νέο όνομα θεάτρου:");
+        System.out.println("New theater name:");
         String theater_name = in.nextLine().trim();
         if (!theater_name.isBlank())
             t.setTheaterName(theater_name.trim());
 
-        System.out.println("Νέα τοποθεσία:");
+        System.out.println("New location:");
         String location = in.nextLine().trim();
         if (!location.isBlank())
             t.setLocation(location);
 
-        System.out.println("Νέα ημερομηνία:");
+        System.out.println("New date:");
         String date = in.nextLine().trim();
         if (!date.isBlank())
             t.setDate(date);
 
-        System.out.println("Νέα πρωταγωνιστής:");
+        System.out.println("New actor:");
         String actor = in.nextLine().trim();
         if (!actor.isBlank())
             t.setActor(actor);
 
-        System.out.println("Ενημερώθηκε:" + t.toString());
+        System.out.println("Updated:" + t);
     }
 
     /**
      * Edit a musical event with given ID
-     *
      * @param id of musical event to make edits
      */
     public void editMusicalByID(int id) {
         MusicalEvent m = getMusicalByID(id);
         if (m == null) {
-            System.out.println("Δεν υπάρχει Μουσική Παράσταση με ID: " + id);
+            System.out.println("No musical event with ID: " + id);
             return;
         }
-        System.out.println("Επεξεργασία: ");
+        System.out.println("Edit: ");
         System.out.println(m.toString().trim());
-        System.out.println("Πάτησε enter για καμία αλλαγή...");
-        System.out.println("Νέος τίτλος:");
+        System.out.println("...Press enter for no change...");
+        System.out.println("New Title:");
         String title = in.nextLine().trim();
-        System.out.println("new title is: " + title);
         if (!title.isBlank())
             m.setTitle(title.trim());
 
-        System.out.println("Νέo όνομα θεάτρου:");
+        System.out.println("New theater name:");
         String theater_name = in.nextLine().trim();
         if (!theater_name.isBlank())
             m.setTheaterName(theater_name);
 
-        System.out.println("Νέα τοποθεσία:");
+        System.out.println("New location:");
         String location = in.nextLine().trim();
         if (!location.isBlank())
             m.setLocation(location);
 
-        System.out.println("Νέα ημερομηνία:");
+        System.out.println("Νew date:");
         String date = in.nextLine().trim();
         if (!date.isBlank())
             m.setDate(date);
 
-        System.out.println("Νέα πρωταγωνιστής:");
+        System.out.println("New singer:");
         String singer = in.nextLine().trim();
         if (!singer.isBlank())
             m.setSinger(singer);
 
-        System.out.println("Ενημερώθηκε: " + m.toString());
+        System.out.println("Updated: " + m);
     }
 
     /**
-     * Delete a theatrical event from ArrayList theatrical_events
+     * Delete a theatrical event from 'theatrical_events' ArrayList
      * @param id of theatrical event to delete
      */
     public void deleteTheatricalByID(int id) {
         TheatricalEvent t = getTheatricalByID(id);
         if ( t == null ){
-            System.out.println("Δεν υπάρχει Θεατρική Παράσταση με ID: "+id);
+            System.out.println("No theatrical event with ID: "+id);
             return;
         }
-        System.out.println("Διαγραφή; (y/n)");
-        System.out.println(t.toString());
+        System.out.println("Delete; (y/n)");
+        System.out.println(t);
         String choice = in.nextLine().trim();
         if (choice.equals("y")) {
             theatrical_events.remove(t);
-            System.out.println("Διαγράφηκε!");
+            System.out.println("Deleted!");
         } else {
-            System.out.println("Ακυρώθηκε...");
+            System.out.println("Abort...");
         }
     }
 
     /**
-     * Delete a musical event from ArrayList musical_events
-     *
+     * Delete a musical event from 'musical_events' ArrayList
      * @param id of musical event to delete
      */
     public void deleteMusicalByID(int id) {
         MusicalEvent m = getMusicalByID(id);
         if ( m == null ){
-            System.out.println("Δεν υπάρχει Μουσική Παράσταση με ID: "+id);
+            System.out.println("No musical event with ID: "+id);
             return;
         }
-        System.out.println("Διαγραφή; (y/n)");
-        System.out.println(m.toString());
+        System.out.println("Delete? (y/n)");
+        System.out.println(m);
         String choice = in.nextLine().trim();
         if (choice.equals("y")) {
             musical_events.remove(m);
-            System.out.println("Διαγράφηκε!");
+            System.out.println("Delete!");
         } else {
-            System.out.println("Ακυρώθηκε...");
+            System.out.println("Abort...");
         }
     }
 
     /**
-     * Delete a customer from ArrayList customers.
-     *
+     * Delete a Customer from customers ArrayList
      * @param id of customer to delete
      */
     public void deleteCustomerByID(int id) {
         Customer c = getCustomerByID(id);
         if ( c == null ){
-            System.out.println("Δεν υπάρχει Πελάτης με ID: "+id);
+            System.out.println("No customer with ID: "+id);
             return;
         }
-        System.out.println("Διαγραφή; (y/n)");
-        System.out.println(c.toString());
+        System.out.println("Delete? (y/n)");
+        System.out.println(c);
         String choice = in.nextLine().trim();
         if (choice.equals("y")) {
             customers.remove(c);
-            System.out.println("Διαγράφηκε!");
+            System.out.println("Deleted!");
         } else {
-            System.out.println("Ακυρώθηκε...");
+            System.out.println("Abort...");
         }
     }
 
     /**
-     * Get a theatrical event by given ID
-     *
+     * Get Theatrical event by given ID
      * @param eventID The id of the event to retrieve
      * @return Null if not found. Else return the Theatrical object with given ID
      */
@@ -660,8 +606,7 @@ public class Main {
     }
 
     /**
-     * Get a musical event by given ID
-     *
+     * Get Musical event by given ID
      * @param eventID The id of the event to retrieve
      * @return Null if not found. Else return the Musical object with given ID
      */
@@ -674,13 +619,11 @@ public class Main {
     }
 
     /**
-     * Get a customer object with given ID
-     *
-     * @param customerId the id of the customer to retrtive
+     * Get Customer object with given ID
+     * @param customerId the id of the customer to retrieve
      * @return null if not found. Else return the Customer object with given ID
      */
     public Customer getCustomerByID(int customerId) {
-        // Για κάθε πελάτη c μέσα στο ArrayList customers
         for (Customer c : customers) {
             if (c.getCustomerId() == customerId)
                 return c;
@@ -689,34 +632,29 @@ public class Main {
     }
 
     /**
-     * Manage Customers.
-     * Display a user menu to select desired operation to customer data.
+     * Customer Management.
+     * Display a user menu and select customer operation.
      */
     private void manageCustomers() {
-        int id = 0;
-        int choice = 0;
+        int id;
+        int choice;
         do {
             Menu.printCustomerManagerMenu();
-            System.out.println("Επιλογή: ");
+            System.out.println("Choose: ");
             try {
-                // διαβάζουμε την είσοδο, αφαιρούμε τα κενά και μετατρέπουμε σε ακέραιο.
                 choice = Integer.parseInt(in.nextLine().trim());
             }catch (NumberFormatException e) {
-                // όταν δεν μπορούμε να μετατρέψουμε τη συμβολοσειρά σε ακέραιο.
-                System.out.println("Wrong input format...");
-                break; // σταματάει την τρέχουσα επάναληψη
+                System.out.println("Wrong input type...");
+                break;
             }
-            // ανάλογα την επιλογή που δίνει ο χρήστης, εκτελείται το αντίστοιχο case
             switch (choice) {
                 case 1:
-                    // εισαγωγή νέου πελάτη και διάβασμα ένα προς ένα τα στοιχεία του από την κονσόλα.
                     insertNewCustomer();
                     saveCustomersToCsv();
                     break;
                 case 2:
-                    // επεξεργασία στοιχείων πελάτη
-                    System.out.println("Επεξεργασία στοιχείων πελάτη");
-                    System.out.println("Δώσε το ID του πελάτη:");
+                    System.out.println("Edit customer...");
+                    System.out.println("Give customer ID:");
                     try {
                         id = Integer.parseInt(in.nextLine().trim());
                     } catch (NumberFormatException e) {
@@ -727,8 +665,8 @@ public class Main {
                     saveCustomersToCsv();
                     break;
                 case 3:
-                    System.out.println("Διαγραφή πελάτη");
-                    System.out.println("Δώσε το ID του πελάτη:");
+                    System.out.println("Delete...");
+                    System.out.println("Give customer ID to delete: ");
                     id = Integer.parseInt(in.nextLine().trim());
                     deleteCustomerByID(id);
                     saveCustomersToCsv();
@@ -738,30 +676,29 @@ public class Main {
     }
 
     /**
-     * Add new customer object to ArrayList customers.
+     * Add new customer object to 'customers' ArrayList.
      */
     public void insertNewCustomer() {
         int id = 0;
         String name;
-        System.out.println("Εισάγετε το ID του πελάτη:");
+        System.out.println("Give customer ID");
         try {
             id = Integer.parseInt(in.nextLine().trim());
         } catch (InputMismatchException e) {
-            System.out.println("Wrong input format...");
+            System.out.println("Wrong input type...");
             System.exit(1);
         }
-        System.out.println("Εισάγετε το όνομα του πελάτη...");
+        System.out.println("Give customer name...");
         name = in.nextLine().trim();
-        // Ελέγχουμε εάν ο πελάτης με τάδε ID, υπάρχει ήδη.
         if (getCustomerByID(id) != null) {
             // null != null
-            System.out.println("Αυτός ο πελάτης υπάρχει ήδη.");
+            System.out.println("This customer already exists.");
             return;
         }
         Customer c = new Customer(id, name);
         customers.add(c);
-        System.out.println("Προσθέσατε νέος πελάτης:");
-        System.out.println(c.toString());
+        System.out.println("New customer added: ");
+        System.out.println(c);
     }
 
     /**
@@ -771,17 +708,17 @@ public class Main {
     public void editCustomerByID(int id) {
         Customer c = getCustomerByID(id);
         if ( c == null ){
-            System.out.println("Δεν υπάρχει Πελάτης με ID: "+id);
+            System.out.println("No customer with ID: "+id);
             return;
         }
-        System.out.println("Επεξεργασία: ");
-        System.out.println(c.toString());
-        System.out.println("Πάτησε enter για καμία αλλαγή...");
-        System.out.println("Νέο όνομα πελάτη:");
+        System.out.println("Editing: ");
+        System.out.println(c);
+        System.out.println("...Press enter for no change...");
+        System.out.println("New customer name");
         String name = in.nextLine().trim();
         if (!name.isBlank())
             c.setCustomerName(name.trim());
-        System.out.println("Ενημερώθηκε: " + c.toString());
+        System.out.println("Updated: " + c);
     }
 
     /**
@@ -789,29 +726,22 @@ public class Main {
      * Display a user menu and select desired operation.
      */
     private void manageReservations() {
-        int choice = 0;
-        // όσο το choice είναι διάφορο του 3, εκτελώ το do-while
+        int choice;
         do {
-            //Εμφανίζουμε το menu
             Menu.printReservationManagerMenu();
-            System.out.println("Επιλογή: ");
-            //ζητάμε από τον χρήστη να πληκτρολογήσει
+            System.out.println("Choose: ");
             try {
                 choice = Integer.parseInt(in.nextLine().trim());
             } catch (InputMismatchException e) {
                 System.out.println("Wrong input type... " + e);
                 break;
             }
-
-            //ανάλογα το τι πάτησε ο χρήστης εκτελούμε το κατάλληλο case
             switch (choice) {
                 case 1:
-                    // θεατρική παράσταση
                     reserveTheatrical();
                     saveReservationsToCsv();
                     break;
                 case 2:
-                    // μουσική παράσταση
                     reserveMusical();
                     saveReservationsToCsv();
                     break;
@@ -823,26 +753,21 @@ public class Main {
      * Make a reservation to a theatrical event.
      */
     public void reserveTheatrical() {
-        // πρώτα ζητάμε από τον χρήστη να μας δώσει το id
-        // ελέγχουμε εάν μπορεί να διαβαστεί ως ακέραιος
-        // ψάχνουμε τη θεατρική παράσταση με το τάδε id
 
-        System.out.println("Κράτηση εισιτηρίου για Θεατρική παράσταση.");
+        System.out.println("Theatrical event reservation");
         int event_id = 0;
         int customer_id = 0;
-        System.out.println("Δώσε το ID της θεατρικής παράστασης:");
+        System.out.println("Give event ID:");
         try {
             event_id = Integer.parseInt(in.nextLine().trim());
         } catch (NumberFormatException e) {
-            System.out.println("Wrong input format...");
+            System.out.println("Wrong input type...");
             System.exit(1);
         }
 
-        // ελέγχουμε εάν είναι υπάρχει θεατρική παράσταση με το τάδε id
         TheatricalEvent t = getTheatricalByID(event_id);
-        // εάν είναι null, τότε ΔΕΝ υπάρχει
         if (t == null) {
-            System.out.println("Δεν υπάρχει θεατρική παράσταση με ID " + event_id);
+            System.out.println("Theatrical event with ID " + event_id + " does not exist.");
             return;
         }
 
@@ -856,59 +781,61 @@ public class Main {
 
         Customer c = getCustomerByID(customer_id);
         if (c == null) {
-            System.out.println("Δεν υπάρχει πελάτης με ID " + customer_id);
+            System.out.println("Customer with ID " + customer_id + " does not exist.");
             return;
         }
 
-        // εφόσον δεν είναι null
-        // δημιουργούμε ένα αντικείμενο της κλάσης Reservation
-        // το προσθέτουμε στο ArrayList
         Reservation n = new Reservation(customer_id, event_id);
         reservations.add(n);
-        System.out.println("Επιτυχής Κράτηση...");
+        System.out.println("Successful Reservation!");
     }
 
     /**
      * Make a reservation to a musical event
      */
     public void reserveMusical() {
-        System.out.println("Κράτηση εισιτηρίου για μουσική παράσταση.");
+        System.out.println("Musical event reservation");
         int event_id = 0;
         int customer_id;
-        System.out.println("Δώσε το ID της μουσικής παράστασης:");
+        System.out.println("Give event ID:");
         try {
             event_id = Integer.parseInt(in.nextLine().trim());
         } catch (InputMismatchException e) {
-            System.out.println("Wrong input format...");
+            System.out.println("Wrong input type...");
             System.exit(1);
         }
         MusicalEvent m = getMusicalByID(event_id);
         if (m == null) {
-            System.out.println("Δεν υπάρχει μουσική παράσταση με ID " + event_id);
+            System.out.println("Musical event with ID " + event_id + " does not exist.");
             return;
         }
-        System.out.println("Δώσε το ID του πελάτη:");
+        System.out.println("Give customer's ID:");
         customer_id = Integer.parseInt(in.nextLine().trim());
         Customer c = getCustomerByID(customer_id);
         if (c == null) {
-            System.out.println("Δεν υπάρχει πελάτης με ID " + customer_id);
+            System.out.println("Customer with ID " + customer_id + " does not exist.");
             return;
         }
         Reservation n = new Reservation(customer_id, event_id);
         reservations.add(n);
-        System.out.println("Επιτυχής Κράτηση...");
+        System.out.println("Successful Reservation!");
     }
 
-
+    /**
+     * Print all Theatrical events
+     */
     public void printAllTheatrical(){
         for (TheatricalEvent t : theatrical_events){
-            System.out.println(t.toString());
+            System.out.println(t);
         }
     }
 
+    /**
+     * Print all Musical events
+     */
     public void printAllMusical(){
         for (MusicalEvent m : musical_events){
-            System.out.println(m.toString());
+            System.out.println(m);
         }
     }
 }

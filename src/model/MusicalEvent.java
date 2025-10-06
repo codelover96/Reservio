@@ -1,5 +1,10 @@
 package model;
 
+/**
+ * Musical event class
+ *
+ * @author codelover96
+ */
 public class MusicalEvent extends Event {
     private String singer;
     public MusicalEvent(int id, String title, String location, String theaterName, String date, String singer) {

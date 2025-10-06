@@ -1,6 +1,11 @@
 package model;
 
-
+/**
+ * Theatrical event class
+ * Inherits all from Event class and has one more property i.e. the main actor of the Theatrical performance.
+ *
+ * @author codelover96
+ */
 public class TheatricalEvent extends Event {
     private String actor;
     public TheatricalEvent(int id, String title, String location, String theaterName, String date, String actor) {

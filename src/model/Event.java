@@ -4,6 +4,8 @@ package model;
  * Represents events. E.g. Theatrical, Musical, Dance or other similar events.
  * Class contains get/set methods for all event properties.
  * An event has an integer ID, a String title, a geographical location, theater name and a date.
+ *
+ * @author codelover96
  */
 public class Event{
     private final int id;

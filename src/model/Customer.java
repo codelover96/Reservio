@@ -1,7 +1,11 @@
 package model;
 
+/**
+ * Customer class
+ * @author codelover96
+ */
 public class Customer {
-    private int id;
+    private final int id;
     private String name;
 
     public Customer(int i, String n){
@@ -23,12 +27,10 @@ public class Customer {
 
     @Override
     public String toString(){
-        String temp = id + ", " + name;
-        return temp;
+        return id + ", " + name;
     }
 
     public String toCSV(){
-        String temp = id + "," + name;
-        return temp;
+        return id + "," + name;
     }
 }

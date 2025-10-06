@@ -1,6 +1,11 @@
 package model;
 
-
+/**
+ * Reservation class
+ * Stores customer ID and event ID
+ *
+ * @author codelover96
+ */
 public class Reservation {
     private int customer_id; // ID of customer making a reservation.
     private int event_id; // ID of the event to reserve a ticket.
