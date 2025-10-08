@@ -6,11 +6,11 @@ Managing theatrical and musical events via a Console UI and offering CRUD functi
 managing customers, creating reservations and adding new events using the command line.
 
 ### Features
-- Add, edit, delete Theatrical and Musical
-- Add, edit, delete Customers
+- Add, edit and delete Theatrical and Musical events
+- Add, edit and delete Customers
 - Make reservations to Theatrical and Musical events
-- Show all events, customers and reservations
-- Data is loaded and saved in CSV format
+- Show all Events, Customers and Reservations
+- Data is loaded and saved in files in CSV format
 
 ### Installation
 Clone this repo using the GitHub CLI or with the web URL.
