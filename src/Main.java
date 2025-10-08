@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import model.*;
 import ui.Menu;
-
+import service.CustomerCollection;
 /**
  * Class Main
  * @author codelover96
@@ -29,18 +29,15 @@ import ui.Menu;
 
 public class Main {
     private Scanner in = new Scanner(System.in);
-    private List<Customer> customers = new ArrayList<>();
     private List<TheatricalEvent> theatrical_events = new ArrayList<>();
     private List<MusicalEvent> musical_events = new ArrayList<>();
     private List<Reservation> reservations = new ArrayList<>();
+    private CustomerCollection customerCollection;
 
-    // CSV FILES
-    private final String customers_csv = "customers.csv";
     private final String theatrical_csv = "theatrical.csv";
     private final String musical_csv = "musical.csv";
     private final String reservations_csv = "reservations.csv";
     private final String csvResourcesPath = "/csv/";
-    private final File customers_csv_file = new File(Paths.get("resources", "csv", customers_csv).toUri());
     private final File theatrical_csv_file = new File(Paths.get("resources", "csv", theatrical_csv).toUri());
     private final File musical_csv_file = new File(Paths.get("resources", "csv", musical_csv).toUri());
     private final File reservations_csv_file = new File(Paths.get("resources", "csv", reservations_csv).toUri());
@@ -51,43 +48,31 @@ public class Main {
      */
     public static void main(String[] args) {
         Main m = new Main();
-        m.loadAllFromCsv();
-        System.out.println("Welcome to Reservio, your event manager!");
-        System.out.println();
+        m.createObjectCollections(m.csvResourcesPath);
+        Menu.printWelcomeMenu();
         m.mainMenu();
     }
 
     /**
      * Load all data from CSV files
      */
-    private void loadAllFromCsv() {
-        loadCustomersCsv();
-        loadMusicalCsv();
-        loadTheatricalCsv();
-        loadReservationsCsv();
+    private void createObjectCollections(String resourcesPath) {
+        // CSV FILES
+        String customers_csv_filename = "customers.csv";
+        customerCollection = new CustomerCollection(resourcesPath, customers_csv_filename);
+        loadMusicalFromCsv();
+        loadTheatricalFromCsv();
+        loadReservationsFromCsv();
     }
 
     /**
      * Store all data from ArrayLists to CSV files
      */
-    private void saveToCsv() {
-        saveCustomersToCsv();
+    private void saveCollectionsToCsv() {
+        customerCollection.saveCustomersToCsv();
         saveMusicalToCsv();
         saveTheatricalToCsv();
         saveReservationsToCsv();
-    }
-
-    /**
-     * Save customers ArrayList to CSV file 'customers.csv'
-     */
-    private void saveCustomersToCsv() {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(customers_csv_file))){
-            for (Customer c : customers) {
-                bw.write(c.toCSV());
-            }
-        } catch (IOException e) {
-            System.out.println("Cannot open output file " + customers_csv_file);
-        }
     }
 
     /**
@@ -129,32 +114,12 @@ public class Main {
         }
     }
 
-    /**
-     * Read customers.csv file and store customers to ArrayList
-     */
-    private void loadCustomersCsv() {
-        String name;
-        int customer_id;
-        String line;
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                Objects.requireNonNull(Main.class.getResourceAsStream(csvResourcesPath+customers_csv)), StandardCharsets.UTF_8))){
-            while ((line = br.readLine()) != null && !line.isEmpty()){
-                // δεν χρειαζόμαστε το \r\n επειδή το readLine του BufferedReader ούτως ή άλλως επιστρέφει γραμμή-γραμμή
-                String[] tokens = line.split(",");
-                customer_id = Integer.parseInt(tokens[0]);
-                name = tokens[1];
-                Customer c = new Customer(customer_id, name);
-                customers.add(c);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 
     /**
      * Read theatrical.csv file and store theatrical events to ArrayList
      */
-    private void loadTheatricalCsv() {
+    private void loadTheatricalFromCsv() {
         int id;
         String title;
         String theater_name;
@@ -183,7 +148,7 @@ public class Main {
     /**
      * Read musical.csv file and store musical events to ArrayList
      */
-    private void loadMusicalCsv() {
+    private void loadMusicalFromCsv() {
         int id;
         String title;
         String theater_name;
@@ -210,9 +175,9 @@ public class Main {
     }
 
     /**
-     * Read reservations.csv file and store reservations to ArrayList
+     * Read the reservations.csv file and store reservations to ArrayList
      */
-    private void loadReservationsCsv() {
+    private void loadReservationsFromCsv() {
         int customer_id;
         int event_id;
         String line;
@@ -267,7 +232,7 @@ public class Main {
                 case 6:
                     //
                     System.out.println("Save and Exit...");
-                    saveToCsv();
+                    saveCollectionsToCsv();
                     in.close();
             }
         } while (choice != 6);
@@ -363,7 +328,7 @@ public class Main {
     }
 
     /**
-     * Add new Musical event to 'musical_events' ArrayList
+     * Add a new Musical event to 'musical_events' ArrayList
      */
     public void insertNewMusical() {
         int id = 0;
@@ -406,7 +371,7 @@ public class Main {
     }
 
     /**
-     * Add new Theatrical event to 'theatrical_events' ArrayList
+     * Add a new Theatrical event to 'theatrical_events' ArrayList
      */
     public void insertNewTheatrical() {
         int id = 0;
@@ -451,7 +416,7 @@ public class Main {
     }
 
     /**
-     * Edit a theatrical event with given ID
+     * Edit a theatrical event with a given I D
      * @param id of theatrical event to make edits
      */
     public void editTheatricalByID(int id) {
@@ -490,7 +455,7 @@ public class Main {
     }
 
     /**
-     * Edit a musical event with given ID
+     * Edit a musical event with α given ID
      * @param id of musical event to make edits
      */
     public void editMusicalByID(int id) {
@@ -572,31 +537,12 @@ public class Main {
         }
     }
 
-    /**
-     * Delete a Customer from customers ArrayList
-     * @param id of customer to delete
-     */
-    public void deleteCustomerByID(int id) {
-        Customer c = getCustomerByID(id);
-        if ( c == null ){
-            System.out.println("No customer with ID: "+id);
-            return;
-        }
-        System.out.println("Delete? (y/n)");
-        System.out.println(c);
-        String choice = in.nextLine().trim();
-        if (choice.equals("y")) {
-            customers.remove(c);
-            System.out.println("Deleted!");
-        } else {
-            System.out.println("Abort...");
-        }
-    }
+
 
     /**
      * Get Theatrical event by given ID
      * @param eventID The id of the event to retrieve
-     * @return Null if not found. Else return the Theatrical object with given ID
+     * @return Null if not found. Else return the Theatrical object with α given ID
      */
     public TheatricalEvent getTheatricalByID(int eventID) {
         for (TheatricalEvent t : theatrical_events)
@@ -608,7 +554,7 @@ public class Main {
     /**
      * Get Musical event by given ID
      * @param eventID The id of the event to retrieve
-     * @return Null if not found. Else return the Musical object with given ID
+     * @return Null if not found. Else return the Musical object with α given ID
      */
     public MusicalEvent getMusicalByID(int eventID) {
         for (MusicalEvent m : musical_events) {
@@ -618,18 +564,7 @@ public class Main {
         return null;
     }
 
-    /**
-     * Get Customer object with given ID
-     * @param customerId the id of the customer to retrieve
-     * @return null if not found. Else return the Customer object with given ID
-     */
-    public Customer getCustomerByID(int customerId) {
-        for (Customer c : customers) {
-            if (c.getCustomerId() == customerId)
-                return c;
-        }
-        return null;
-    }
+
 
     /**
      * Customer Management.
@@ -649,8 +584,8 @@ public class Main {
             }
             switch (choice) {
                 case 1:
-                    insertNewCustomer();
-                    saveCustomersToCsv();
+                    customerCollection.insertNewCustomer();
+                    customerCollection.saveCustomersToCsv();
                     break;
                 case 2:
                     System.out.println("Edit customer...");
@@ -661,69 +596,24 @@ public class Main {
                         System.out.println("Wrong input format...");
                         break;
                     }
-                    editCustomerByID(id);
-                    saveCustomersToCsv();
+                    customerCollection.editCustomerByID(id);
+                    customerCollection.saveCustomersToCsv();
                     break;
                 case 3:
                     System.out.println("Delete...");
                     System.out.println("Give customer ID to delete: ");
                     id = Integer.parseInt(in.nextLine().trim());
-                    deleteCustomerByID(id);
-                    saveCustomersToCsv();
+                    customerCollection.deleteCustomerByID(id);
+                    customerCollection.saveCustomersToCsv();
                     break;
             }
         } while (choice != 4);
     }
 
-    /**
-     * Add new customer object to 'customers' ArrayList.
-     */
-    public void insertNewCustomer() {
-        int id = 0;
-        String name;
-        System.out.println("Give customer ID");
-        try {
-            id = Integer.parseInt(in.nextLine().trim());
-        } catch (InputMismatchException e) {
-            System.out.println("Wrong input type...");
-            System.exit(1);
-        }
-        System.out.println("Give customer name...");
-        name = in.nextLine().trim();
-        if (getCustomerByID(id) != null) {
-            // null != null
-            System.out.println("This customer already exists.");
-            return;
-        }
-        Customer c = new Customer(id, name);
-        customers.add(c);
-        System.out.println("New customer added: ");
-        System.out.println(c);
-    }
-
-    /**
-     * Edit a customer with the given ID
-     * @param id of customer to make edits.
-     */
-    public void editCustomerByID(int id) {
-        Customer c = getCustomerByID(id);
-        if ( c == null ){
-            System.out.println("No customer with ID: "+id);
-            return;
-        }
-        System.out.println("Editing: ");
-        System.out.println(c);
-        System.out.println("...Press enter for no change...");
-        System.out.println("New customer name");
-        String name = in.nextLine().trim();
-        if (!name.isBlank())
-            c.setCustomerName(name.trim());
-        System.out.println("Updated: " + c);
-    }
 
     /**
      * Manage reservations
-     * Display a user menu and select desired operation.
+     * Display the user menu and select α desired operation.
      */
     private void manageReservations() {
         int choice;
@@ -779,8 +669,7 @@ public class Main {
             System.exit(1);
         }
 
-        Customer c = getCustomerByID(customer_id);
-        if (c == null) {
+        if (customerCollection.exists(customer_id)) {
             System.out.println("Customer with ID " + customer_id + " does not exist.");
             return;
         }
@@ -811,8 +700,7 @@ public class Main {
         }
         System.out.println("Give customer's ID:");
         customer_id = Integer.parseInt(in.nextLine().trim());
-        Customer c = getCustomerByID(customer_id);
-        if (c == null) {
+        if (customerCollection.exists(customer_id)) {
             System.out.println("Customer with ID " + customer_id + " does not exist.");
             return;
         }

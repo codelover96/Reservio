@@ -1,6 +1,11 @@
 package ui;
 
 public class Menu {
+    public static void printWelcomeMenu(){
+        System.out.println("Welcome to Reservio, your event manager!");
+        System.out.println();
+    }
+
     public static void printMainMenu(){
         System.out.println("Choose:");
         System.out.println("1... Manage Theatrical Events");
